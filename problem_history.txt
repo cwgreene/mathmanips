@@ -1,0 +1,11 @@
+#1
+In firefox, I found that attempting to move things didn't work.
+Initially I thought the problem was due to firefox rendering things
+differently (not recognizing the change to the DOM element), but this 
+was wrong. The issue was that the css text rule, user select, 
+had not been disabled
+for mozilla (-moz-user-select). This has been fixed.
+
+Moral: Be wary of browser specific extensions. Use all browser versions.
+
+
