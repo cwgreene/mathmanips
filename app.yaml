@@ -1,0 +1,21 @@
+application: fractionbars
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /(.*\.(html))
+  static_files: static/HTML/\1
+  upload: static/HTML/(.*\.(html))
+
+- url: .*
+  script: main.app
+
+libraries:
+- name: webapp2
+  version: "latest"
