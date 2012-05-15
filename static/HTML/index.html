@@ -6,6 +6,7 @@ div.fraction_area{
     -moz-user-select:none;
 }
 div.fraction{
+    -moz-user-select:none;
 	position:absolute;
 	height:20px;
 }
@@ -30,10 +31,10 @@ div.fraction.whole {
 </head>
 <body>
     <div class="fraction_area" id="main_area">
-        <div class="fraction fourth" style="top:0">Fourth</div>
-        <div class= "fraction fifth" style="top:60">fifth</div>
-        <div class="fraction half" style="top:20">half</div>
-        <div class="fraction whole" style="top:40">whole</div>
+        <div class="fraction fourth" style="top:0px">Fourth</div>
+        <div class= "fraction fifth" style="top:60px">fifth</div>
+        <div class="fraction half" style="top:20px">half</div>
+        <div class="fraction whole" style="top:40px">whole</div>
     </div>
 <script>
 // This needs to be at the end of the body,
@@ -48,7 +49,7 @@ function min(alist, key){
             return x;
         }
     }
-    if(alist.length == 0)
+    if(alist.length === 0)
         return;
     var min = alist[0];
     var min_key = key(alist[0])
@@ -110,7 +111,7 @@ function map(f, alist){
 function map_args(f, args, alist){
     var undefined_index = 0;
     for(var i = 0; i < args.length; i++){
-        if(args[i] == undefined){
+        if(args[i] === undefined){
             break;
         }
         i+=1;
@@ -139,35 +140,45 @@ function distance(obj1, obj2){
     return max([dist1,dist2]);
 }
 
-function find_nearest(x, y, target){
+function tag_change_color(tag, color) {
+    if (tag.original_color === undefined || tag.original_color === "") {
+        tag.original_color = tag.style.background;
+    }
+    tag.style.background = color;
+}
+
+function tag_revert_color(tag) {
+    console.log("Reverting",tag.original_color);
+    if (tag.original_color) {
+        tag.style.background= tag.original_color;
+    }
+}
+
+function find_nearest(x, y, target) {
     var all_tags = document.getElementsByClassName("fraction");
 
-    for(var i = 0 ; i < all_tags.length; i++)
-    {
+    for(var i = 0 ; i < all_tags.length; i++) {
         var tag = all_tags[i];
-        if(tag == target || tag.is_proto)
-        {
+        if(tag === target || tag.is_proto) {
             continue;
         }
         var tag_x = style_to_num(tag.style.left);
         var tag_y = style_to_num(tag.style.top);
         console.log("distance",distance(target,tag));
-        if(distance(target,tag) < 10){
-            if(tag.style["background-color"] == "red")
-                tag.style["background-color"] = "blue";
-            else
-                tag.style["background-color"] = "red";
-        }   
+        if(distance(target,tag) < 10) {
+            tag_change_color(tag,"yellow")
+        }else {
+            tag_revert_color(tag);
+        }       
     }
 }
 
 function movetarget(original_event){
-	var moveMe = function (event){
+	var moveMe = function (event) {
 		var target = original_event.target;
-		target.style.left=event.x;
-		target.style.top=event.y;
-        var nearest = 
-            find_nearest(event.x,event.y, target);
+		target.style.left = event.x;
+		target.style.top = event.y;
+        var nearest = find_nearest(event.x,event.y, target);
 	}
 	var removeMe = function(event){
 		document.removeEventListener("mousemove", moveMe);
@@ -182,10 +193,11 @@ function createFraction(pos, fraction_area, prototype){
 	var newElement = document.createElement("div")
 	newElement.className = prototype.className;
 	newElement.onmousedown = movetarget;
-	newElement.style.left=pos.x;
-	newElement.style.top=pos.y;
+	newElement.style.left = pos.x + "px";
+	newElement.style.top = pos.y + "px";
     newElement.style.width = window.getComputedStyle(prototype).width;
     newElement.style.height = window.getComputedStyle(prototype).height;
+    newElement.style.background = window.getComputedStyle(prototype).background;
     newElement.innerText = prototype.innerText;
 	fraction_area.appendChild(newElement);
 	movetarget({"target":newElement, "x":pos.x, "y":pos.y});

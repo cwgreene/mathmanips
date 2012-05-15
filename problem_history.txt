@@ -17,3 +17,10 @@ Update2: Yes, this did fix the problem. A new issue was introduced
 (change_color got added, but the invocation was wrong). The reason why this
 happens I believe is becase the mouse move object that is being targeted
 is the selection (which doesn't have a 'left' or 'top' value).
+
+Update3: Fixed the change_color invocation issue, this remains unfortunately.
+
+#2
+tag.style.background is going to be undefined (or "") since this was not being
+set explicitly. Because of that, it was a computed property. This has been
+fixed now.
