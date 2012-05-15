@@ -8,4 +8,12 @@ for mozilla (-moz-user-select). This has been fixed.
 
 Moral: Be wary of browser specific extensions. Use all browser versions.
 
+Update: No, this didn't fix the problem. In fact, the trick that I used in 
+Chrome, just putting unselectable into the fraction_bar area, doesn't
+stop fractions (which are just child nodes of the fraction area) from being 
+text selected. I have now added this explicitly to the fraction class.
 
+Update2: Yes, this did fix the problem. A new issue was introduced 
+(change_color got added, but the invocation was wrong). The reason why this
+happens I believe is becase the mouse move object that is being targeted
+is the selection (which doesn't have a 'left' or 'top' value).
