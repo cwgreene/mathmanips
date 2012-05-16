@@ -20,6 +20,10 @@ is the selection (which doesn't have a 'left' or 'top' value).
 
 Update3: Fixed the change_color invocation issue, this remains unfortunately.
 
+Update4: The real culprit here is that chrome supports event.x, whereas 
+Firefox supports only (standards compliant) event.clientX. This has now
+been corrected.
+
 #2
 tag.style.background is going to be undefined (or "") since this was not being
 set explicitly. Because of that, it was a computed property. This has been
