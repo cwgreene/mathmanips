@@ -166,8 +166,8 @@ function createFraction(pos, fraction_area, prototype){
     newElement.style.width = window.getComputedStyle(prototype).width;
     newElement.style.height = window.getComputedStyle(prototype).height;
     newElement.style.background = window.getComputedStyle(prototype).background;
-    console.log(prototype.innerText);
-    newElement.innerText = prototype.innerText;
+    console.log(prototype.textContent);
+    newElement.textContent = prototype.textContent;
     fraction_area.appendChild(newElement);
     movetarget({"target":newElement, 
                 "clientX":pos.clientX, 
