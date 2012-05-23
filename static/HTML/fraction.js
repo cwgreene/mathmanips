@@ -4,32 +4,36 @@ function style_to_num(style){
     return Number(style.substring(0,style.length-2));
 }
 
-function min(alist, key){
-    if(!key){
-        key = function(x){
+function min(alist, akey){
+    if(!akey){
+        var key = function(x){
             return x;
         }
+    }else {
+        var key = akey;
     }
     if(alist.length === 0)
         return;
     var min = alist[0];
     var min_key = key(alist[0])
     for(var i = 0; i < alist.length; i++) {
-        i_key = key(alist[i])
-        if(min_key > i_key){
+        var i_key = key(alist[i])
+        if(min_key >= i_key){
             min = alist[i];
             min_key = i_key;
         }
     }
-    return min;
+    if(!akey)
+        return min;
+    return [min, min_key]
 }
 function max(alist){
-    return min(alist, key=function(x){return -x})
+    return min(alist, key=function(x){return -x})[0]
 }
 
 function rect(obj){
-    rect_obj = {}
-    keys = ["left","top","width","height"];
+    var rect_obj = {}
+    var keys = ["left","top","width","height"];
     for(var i =0; i < keys.length;i++){
         rect_obj[keys[i]] = style_to_num(obj.style[keys[i]]);
     }
@@ -37,7 +41,7 @@ function rect(obj){
 }
 
 function rect_positions(rect){
-    rect_pos = {};
+    var rect_pos = {};
     rect_pos.left = rect.left;
     rect_pos.top = rect.top;
     rect_pos.bottom = rect.top + rect.height;
@@ -69,6 +73,28 @@ function map(f, alist){
     return ret;
 }
 
+function filter(f, alist){
+    var ret = []
+    var j = 0;
+    for(var i = 0; i < alist.length;i++){
+        if (f(alist[i])){
+            ret[j] = alist[i];
+            j += 1;
+        }
+    }
+    return ret;
+}
+
+function zip(alist, blist) {
+    var ret = [];
+    var length = min(alist,blist);
+    for(var i = 0; i < length;i++)
+    {
+        ret[i] = [alist[i], blist[i]];
+    }
+    return ret;
+}
+
 function map_args(f, args, alist){
     var undefined_index = 0;
     for(var i = 0; i < args.length; i++){
@@ -93,7 +119,6 @@ function distance(obj1, obj2){
     var rect2 = rect(obj2);
     var rpos1 = rect_positions(rect1);
     var rpos2 = rect_positions(rect2);
-    var restrict_mult
     var dist1 = interval_distance([rpos1.left, rpos1.right],
                                   [rpos2.left, rpos2.right] )
     var dist2 = interval_distance([rpos1.top, rpos1.bottom],
@@ -102,9 +127,6 @@ function distance(obj1, obj2){
 }
 
 function tag_change_color(tag, color) {
-    if (tag.original_color === undefined || tag.original_color === "") {
-        tag.original_color = tag.style.background;
-    }
     tag.style.background = color;
 }
 
@@ -115,23 +137,111 @@ function tag_revert_color(tag) {
     }
 }
 
-function find_nearest(x, y, target, threshhold) {
-    var all_tags = document.getElementsByClassName("fraction");
+function tag_set_color(tag, color) {
+    tag.original_color = color;
+    tag.style.background = color;
+}
 
-    for(var i = 0 ; i < all_tags.length; i++) {
-        var tag = all_tags[i];
-        if(tag === target || tag.is_proto) {
-            continue;
-        }
-        var tag_x = style_to_num(tag.style.left);
-        var tag_y = style_to_num(tag.style.top);
-        console.log("distance",distance(target,tag));
-        if(distance(target,tag) < threshhold) {
-            tag_change_color(tag,"yellow")
-        }else {
-            tag_revert_color(tag);
-        }       
+function find_nearest(target) {
+    var all_tags = document.getElementsByClassName("fraction");
+    
+    most_tags = filter(function(x) {
+                          var val = (x === target || x.is_proto);
+                          return !val; },
+                       all_tags)
+    nearest = min(most_tags, function(x){ return distance(x,target)}); 
+    return nearest;
+}
+
+/* function: tag_orientation_dim
+** input: tag, tag2, dim
+** 
+** Determines if tag is to the 'left' or 'right'
+** or 'on top' of tag2, in the specified dimension.
+*/
+function tag_orientation_dim(tag, tag2, dim){
+    var dims = {"left": "width",
+                "top": "height"};
+    console.log("1",tag[dim],tag[dims[dim]])
+    console.log("2",tag2[dim],tag2[dims[dim]])
+    var dist = interval_distance(
+        [tag[dim], tag[dim] + tag[dims[dim]] ],
+        [tag2[dim], tag2[dim] + tag2[dims[dim]] ]);
+    console.log("dim",dim,dist);
+    return dist;
+}
+
+function tag_setBottom(tag, new_bottom){
+    tag_move(tag, tag.left, new_bottom-tag.height);
+}
+
+function tag_setTop(tag, new_top){
+    tag_move(tag, tag.left, new_top);
+}
+
+function tag_setRight(tag, new_right){
+    tag_move(tag, new_right-tag.width, tag.top);
+}
+
+function tag_setLeft(tag, new_left){
+    tag_move(tag, new_left, tag.top);
+}
+
+function tag_snap_horizontal(tag, tag2){
+    if(tag.left < tag2.left+tag2.width/2)
+        tag_setRight(tag, tag2.left);
+    else
+        tag_setLeft(tag, tag2.left+tag2.width);
+}
+
+function tag_snap_adjacent(tag, tag2, dim){
+    var dims = {"left": ["width", tag_setLeft, tag_setRight],
+                "top": ["height", tag_setTop, tag_setBottom]};
+    var extent = dims[dim][0];
+    if(tag[dim] < tag2[dim] + tag2[extent]/2 ) {
+        var setRight = dims[dim][2];
+        setRight(tag, tag2[dim]);
+    } else {
+        var setLeft = dims[dim][1];
+        setLeft(tag, tag2[dim] + tag2[extent]);
     }
+}
+
+function tag_snap_vertical(tag, tag2) {
+    console.log(tag.top,tag2.top,tag2.height)
+    if(tag.top < tag2.top + tag2.height/2 ) {
+        console.log("setBottom");
+        tag_setBottom(tag, tag2.top)
+    }
+    else
+        tag_setTop(tag, tag2.top + tag2.height);
+}
+
+function tag_align_vertical(tag, tag2){
+    tag_setTop(tag, tag2.top);
+}
+
+function tag_snap_to(tag, tag2) {
+   console.log(tag.top)
+   var left_dist = tag_orientation_dim(tag, tag2, "left");
+   console.log("left_dist", left_dist);
+   if(tag_orientation_dim(tag, tag2, "left") !== 0){
+    
+        console.log("aligning vertical");
+        tag_align_vertical(tag, tag2);
+        tag_snap_horizontal(tag, tag2);
+        return;
+    }
+    
+    // above or below
+    tag_snap_vertical(tag, tag2);
+}
+
+function snap_to_nearest(target){
+    nearest = find_nearest(target);
+    console.log(nearest);
+    if(!nearest) return;
+    tag_snap_to(target, nearest[0]);
 }
 
 function movetarget(original_event){
@@ -139,34 +249,55 @@ function movetarget(original_event){
     var original_y = original_event.clientY;
     var target = original_event.target;
 
-    var offset_x = -original_x+style_to_num(target.style.left);
-    var offset_y = -original_y+style_to_num(target.style.top);
+    var offset_x = -original_x+target.left;
+    var offset_y = -original_y+target.top;
 
     var moveMe = function (event) {
         var x = event.clientX, y = event.clientY;
-        target.style.left = x + offset_x;
-        target.style.top = y + offset_y;
-        var nearest = find_nearest(x, y, target, 10);
+        tag_move(target, x + offset_x, y + offset_y);
     }
     var removeMe = function(event){
         document.removeEventListener("mousemove", moveMe);
         document.removeEventListener("mouseup", removeMe);
+        
+        snap_to_nearest(target);   
     }
     document.addEventListener("mousemove",moveMe);
     document.addEventListener("mouseup",removeMe);
     moveMe(original_event);
 }
 
+function tag_move(tag, new_left, new_top){
+    tag.left = new_left;
+    tag.top = new_top;
+    tag.style.left = tag.left;
+    tag.style.top = tag.top;
+}
+
+function tag_resize(tag, new_width, new_height){
+    tag.width = new_width;
+    tag.height = new_height;
+
+    tag.style.width = tag.width;
+    tag.style.height = tag.height;
+}
+
 function createFraction(pos, fraction_area, prototype){
     var newElement = document.createElement("div")
+
     newElement.className = prototype.className;
     newElement.onmousedown = movetarget;
-    newElement.style.left = pos.clientX + "px";
-    newElement.style.top = pos.clientY + "px";
-    newElement.style.width = window.getComputedStyle(prototype).width;
-    newElement.style.height = window.getComputedStyle(prototype).height;
-    newElement.style.background = window.getComputedStyle(prototype).background;
-    console.log(prototype.textContent);
+
+    // Init position and getters
+    
+    tag_move(newElement, pos.clientX, pos.clientY);
+    tag_resize(newElement,
+                 style_to_num(window.getComputedStyle(prototype).width),
+                 style_to_num(window.getComputedStyle(prototype).height));
+    
+    // Init color
+    tag_set_color(newElement,
+                  window.getComputedStyle(prototype).background);
     newElement.textContent = prototype.textContent;
     fraction_area.appendChild(newElement);
     movetarget({"target":newElement, 
