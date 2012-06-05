@@ -4,128 +4,6 @@ function style_to_num(style){
     return Number(style.substring(0,style.length-2));
 }
 
-function min(alist, akey){
-    if(!akey){
-        var key = function(x){
-            return x;
-        }
-    }else {
-        var key = akey;
-    }
-    if(alist.length === 0)
-        return;
-    var min = alist[0];
-    var min_key = key(alist[0])
-    for(var i = 0; i < alist.length; i++) {
-        var i_key = key(alist[i])
-        if(min_key >= i_key){
-            min = alist[i];
-            min_key = i_key;
-        }
-    }
-    if(!akey)
-        return min;
-    return [min, min_key]
-}
-function max(alist){
-    return min(alist, key=function(x){return -x})[0]
-}
-
-function rect(obj){
-    var rect_obj = {}
-    var keys = ["left","top","width","height"];
-    for(var i =0; i < keys.length;i++){
-        rect_obj[keys[i]] = style_to_num(obj.style[keys[i]]);
-    }
-    return rect_obj;
-}
-
-function rect_positions(rect){
-    var rect_pos = {};
-    rect_pos.left = rect.left;
-    rect_pos.top = rect.top;
-    rect_pos.bottom = rect.top + rect.height;
-    rect_pos.right = rect.left + rect.width;
-    return rect_pos;
-}
-
-function restrict(obj, keys){
-    var ret = []
-    for(key in keys){
-        ret.push = obj[key]
-    }
-    return ret;
-}
-
-function interval_distance(interval1, interval2){
-    if(interval1[1] < interval2[0])
-        return interval2[0]-interval1[1];
-    if(interval1[0] > interval2[1])
-        return interval1[0] - interval2[1];
-    return 0; //intersection
-}
-
-function map(f, alist){
-    var ret = [];
-    for(var i = 0; i < alist.length;i++){
-        ret.push(f(alist[i]));
-    }
-    return ret;
-}
-
-function filter(f, alist){
-    var ret = []
-    var j = 0;
-    for(var i = 0; i < alist.length;i++){
-        if (f(alist[i])){
-            ret[j] = alist[i];
-            j += 1;
-        }
-    }
-    return ret;
-}
-
-function zip(alist, blist) {
-    var ret = [];
-    var length = min(alist,blist);
-    for(var i = 0; i < length;i++)
-    {
-        ret[i] = [alist[i], blist[i]];
-    }
-    return ret;
-}
-
-function map_args(f, args, alist){
-    var undefined_index = 0;
-    for(var i = 0; i < args.length; i++){
-        if(args[i] === undefined){
-            break;
-        }
-        i+=1;
-    }
-    var g = function(x) {
-        args[undefined_index] = x;
-        f.apply(this,args);
-    }
-    return map(g, alist);
-}
-
-function apply(f, alist){
-    f.apply(this, alist);
-}
-
-function distance(obj1, obj2){
-    var rect1 = rect(obj1);
-    var rect2 = rect(obj2);
-    var rpos1 = rect_positions(rect1);
-    var rpos2 = rect_positions(rect2);
-    var dist1 = interval_distance([rpos1.left, rpos1.right],
-                                  [rpos2.left, rpos2.right] )
-    var dist2 = interval_distance([rpos1.top, rpos1.bottom],
-                                  [rpos2.top, rpos2.bottom])
-    return max([dist1,dist2]);
-}
-
 function tag_change_color(tag, color) {
     tag.style.background = color;
 }
@@ -142,14 +20,14 @@ function tag_set_color(tag, color) {
     tag.style.background = color;
 }
 
-function find_nearest(target) {
+function tag_find_nearest(tag) {
     var all_tags = document.getElementsByClassName("fraction");
     
     most_tags = filter(function(x) {
-                          var val = (x === target || x.is_proto);
+                          var val = (x === tag || x.is_proto);
                           return !val; },
                        all_tags)
-    nearest = min(most_tags, function(x){ return distance(x,target)}); 
+    nearest = min(most_tags, function(x){ return distance(x,tag)}); 
     return nearest;
 }
 
@@ -237,11 +115,25 @@ function tag_snap_to(tag, tag2) {
     tag_snap_vertical(tag, tag2);
 }
 
-function snap_to_nearest(target){
-    nearest = find_nearest(target);
+function tag_value(tag){
+    if(!tag.adjacent)
+        return tag.value;
+    return tag.value.add(tag_value(tag.adjacent));
+}
+
+function tag_adjacent_to(tag, adjacent){
+    tag.adjacent = adjacent;
+}
+
+function tag_snap_to_nearest(tag){
+    var nearest = tag_find_nearest(tag);
     console.log(nearest);
     if(!nearest) return;
-    tag_snap_to(target, nearest[0]);
+    tag_snap_to(tag, nearest[0]);
+    tag_adjacent_to(tag, nearest[0]);
+    if(tag_value(tag).equals(new Rational(1,1))){
+        destroyFraction(tag);
+    }
 }
 
 function movetarget(original_event){
@@ -260,7 +152,7 @@ function movetarget(original_event){
         document.removeEventListener("mousemove", moveMe);
         document.removeEventListener("mouseup", removeMe);
         
-        snap_to_nearest(target);   
+        tag_snap_to_nearest(target);   
     }
     document.addEventListener("mousemove",moveMe);
     document.addEventListener("mouseup",removeMe);
@@ -287,6 +179,7 @@ function createFraction(pos, fraction_area, prototype){
 
     newElement.className = prototype.className;
     newElement.onmousedown = movetarget;
+    newElement.adjacent = undefined;
 
     // Init position and getters
     
@@ -294,7 +187,10 @@ function createFraction(pos, fraction_area, prototype){
     tag_resize(newElement,
                  style_to_num(window.getComputedStyle(prototype).width),
                  style_to_num(window.getComputedStyle(prototype).height));
-    
+    console.log(newElement.width);
+    newElement.value = new Rational(Number(newElement.width), 200);
+    console.log(newElement.value);
+
     // Init color
     tag_set_color(newElement,
                   window.getComputedStyle(prototype).background);
@@ -304,19 +200,33 @@ function createFraction(pos, fraction_area, prototype){
                 "clientX":pos.clientX, 
                 "clientY":pos.clientY});
 }
+
+function destroyFraction(fraction){
+    if(fraction.parentNode == null)
+        return;
+    fraction.parentNode.removeChild(fraction);
+    if(fraction.adjacent)
+        destroyFraction(fraction.adjacent);
+}
+
+function make_proto(proto_tag, fraction_area){
+    proto_tag.is_proto = true;
+    proto_tag.onmousedown = 
+        function(event){ 
+            createFraction(event, fraction_area, proto_tag)
+        };
+    proto_tag.numerator = 1;
+    proto_tag.denominator = 1;
+}
+
 function init(){
     var fractionTags = document.getElementsByClassName("fraction");
 
-    var fraction_area=document.getElementById("main_area");
+    var fraction_area= document.getElementById("main_area");
 
     // Make all 'fraction' tags moveable.
     for(var i = 0; i < fractionTags.length; i++) {
-        fractionTags[i].is_proto = true;
-        fractionTags[i].onmousedown=function(target){
-            return function(event){
-                createFraction(event,fraction_area, target);
-            }}(fractionTags[i]);
+        make_proto(fractionTags[i], fraction_area);
     }
 }
 init();
-
