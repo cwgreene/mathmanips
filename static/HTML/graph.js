@@ -30,7 +30,7 @@ Graph.prototype.nodes = function(){
 
 Graph.prototype.add_node = function(node_name){
     if(typeof node_name != "string"){
-        throw("Only string names are allowed for nodes");
+        //throw("Only string names are allowed for nodes");
     }
     this.p_nodes[node_name] = [];
 }
@@ -99,6 +99,8 @@ var test = function(){
     
     var init5 = init4 + "x.connect('b','a'); x.connect('c','b');";
     assert(init5 + "x.connected('a')", ".equals(['b','c','a'])");
+
+    assert("var x = new Graph(); x.add_node(1); x.nodes()",".equals(['1'])");
 
     console.log("Failures:",assert_failures.length);
     if(assert_failures.length)

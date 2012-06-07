@@ -23,11 +23,14 @@ function tag_set_color(tag, color) {
 function tag_find_nearest(tag) {
     var all_tags = document.getElementsByClassName("fraction");
     
-    most_tags = filter(function(x) {
+    var most_tags = filter(function(x) {
                           var val = (x === tag || x.is_proto);
                           return !val; },
                        all_tags)
-    nearest = min(most_tags, function(x){ return distance(x,tag)}); 
+    var nearest = min(most_tags, function(x){ return distance(x,tag)}); 
+    if(nearest && distance(nearest[0], tag) > 20){
+        return undefined;
+    }
     return nearest;
 }
 
@@ -59,6 +62,8 @@ function tag_setTop(tag, new_top){
 
 function tag_setRight(tag, new_right){
     tag_move(tag, new_right-tag.width, tag.top);
+    tag.adjacentRight = new_right;
+    new_right.adjacentLeft = tag;
 }
 
 function tag_setLeft(tag, new_left){
@@ -72,6 +77,11 @@ function tag_snap_horizontal(tag, tag2){
         tag_setLeft(tag, tag2.left+tag2.width);
 }
 
+function linkAdjacent(left_tag, right_tag){
+    left_tag.adjacentRight = right_tag;
+    right_tag.adjacentLeft = left_tag;
+}
+
 function tag_snap_adjacent(tag, tag2, dim){
     var dims = {"left": ["width", tag_setLeft, tag_setRight],
                 "top": ["height", tag_setTop, tag_setBottom]};
@@ -79,6 +89,8 @@ function tag_snap_adjacent(tag, tag2, dim){
     if(tag[dim] < tag2[dim] + tag2[extent]/2 ) {
         var setRight = dims[dim][2];
         setRight(tag, tag2[dim]);
+        linkAdjacent(tag, tag2);
+        console.log(tag_value());
     } else {
         var setLeft = dims[dim][1];
         setLeft(tag, tag2[dim] + tag2[extent]);
@@ -115,14 +127,21 @@ function tag_snap_to(tag, tag2) {
     tag_snap_vertical(tag, tag2);
 }
 
-function tag_value(tag){
-    if(!tag.adjacent)
-        return tag.value;
-    return tag.value.add(tag_value(tag.adjacent));
+function tag_group_value(tag){
+    var sum = new Rational(0,1);
+    var cur_tag = tag;
+    while(cur_tag.adjacentLeft){
+        cur_tag = cur_tag.adjacentLeft;
+    }
+    while(cur_tag){
+        sum = sum.add(tag.value);
+        cur_tag = cur_tag.adjacentRight;
+    }
+    return sum;
 }
 
-function tag_adjacent_to(tag, adjacent){
-    tag.adjacent = adjacent;
+function getTarget(){
+    return new Rational(1,1);
 }
 
 function tag_snap_to_nearest(tag){
@@ -130,8 +149,7 @@ function tag_snap_to_nearest(tag){
     console.log(nearest);
     if(!nearest) return;
     tag_snap_to(tag, nearest[0]);
-    tag_adjacent_to(tag, nearest[0]);
-    if(tag_value(tag).equals(new Rational(1,1))){
+    if(tag_group_value(tag).equals(getTarget())){
         destroyFraction(tag);
     }
 }
@@ -176,6 +194,7 @@ function tag_resize(tag, new_width, new_height){
 
 function createFraction(pos, fraction_area, prototype){
     var newElement = document.createElement("div")
+
 
     newElement.className = prototype.className;
     newElement.onmousedown = movetarget;

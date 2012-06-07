@@ -25,6 +25,7 @@ function interval_distance(interval1, interval2){
 }
 
 function distance(obj1, obj2){
+    console.log("distance" ,obj1, obj2);
     var rect1 = rect(obj1);
     var rect2 = rect(obj2);
     var rpos1 = rect_positions(rect1);
