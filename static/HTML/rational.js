@@ -63,8 +63,11 @@ var test = function(){
     assert("(new Rational(1,2)).mult(new Rational(1,2)).equals(new Rational(4,16))");      
     assert("(new Rational(1,3)).add(new Rational(3,1)).equals(new Rational(10,3))");      
     assert("(new Rational(3,5)).add(new Rational(5,3)).equals(new Rational(34,15))");
+    assert("(new Rational(1,2)).add(new Rational(1,4)).equals(new Rational(3,4))");
+    assert("(new Rational(1,4)).add(new Rational(1,2)).equals(new Rational(3,4))");
     console.log(assert_failures);
 }
 return test();
 
 }
+test()

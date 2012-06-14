@@ -37,13 +37,13 @@ Graph.prototype.add_node = function(node_name){
 
 Graph.prototype.adjacent = function(node_name){
     if(!(node_name in this.p_nodes))
-        throw("Graph.prototype.adjacent: "+node_name + " not in graph");
+        throw("Graph.prototype.adjacent: " + node_name + " not in graph");
     return this.p_nodes[node_name];
 }
 
 Graph.prototype.connect = function(a, b){
     if(!(a in this.p_nodes && b in this.p_nodes))
-        throw("Graph.prototpe.connect: "+a+" and "+b+" not both in graph");
+        throw("Graph.prototpe.connect: " + a + " and " + b + " not both in graph");
     return this.p_nodes[a].push(b);
 }
 

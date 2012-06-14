@@ -9,7 +9,6 @@ function tag_change_color(tag, color) {
 }
 
 function tag_revert_color(tag) {
-    console.log("Reverting",tag.original_color);
     if (tag.original_color) {
         tag.style.background= tag.original_color;
     }
@@ -43,12 +42,9 @@ function tag_find_nearest(tag) {
 function tag_orientation_dim(tag, tag2, dim){
     var dims = {"left": "width",
                 "top": "height"};
-    console.log("1",tag[dim],tag[dims[dim]])
-    console.log("2",tag2[dim],tag2[dims[dim]])
     var dist = interval_distance(
         [tag[dim], tag[dim] + tag[dims[dim]] ],
         [tag2[dim], tag2[dim] + tag2[dims[dim]] ]);
-    console.log("dim",dim,dist);
     return dist;
 }
 
@@ -90,7 +86,6 @@ function tag_snap_adjacent(tag, tag2, dim){
         var setRight = dims[dim][2];
         setRight(tag, tag2[dim]);
         linkAdjacent(tag, tag2);
-        console.log(tag_value());
     } else {
         var setLeft = dims[dim][1];
         setLeft(tag, tag2[dim] + tag2[extent]);
@@ -98,9 +93,7 @@ function tag_snap_adjacent(tag, tag2, dim){
 }
 
 function tag_snap_vertical(tag, tag2) {
-    console.log(tag.top,tag2.top,tag2.height)
     if(tag.top < tag2.top + tag2.height/2 ) {
-        console.log("setBottom");
         tag_setBottom(tag, tag2.top)
     }
     else
@@ -112,14 +105,17 @@ function tag_align_vertical(tag, tag2){
 }
 
 function tag_snap_to(tag, tag2) {
-   console.log(tag.top)
    var left_dist = tag_orientation_dim(tag, tag2, "left");
-   console.log("left_dist", left_dist);
    if(tag_orientation_dim(tag, tag2, "left") !== 0){
     
-        console.log("aligning vertical");
         tag_align_vertical(tag, tag2);
         tag_snap_horizontal(tag, tag2);
+        if(tag.left < tag2.left){
+            linkAdjacent(tag, tag2);
+        }
+        else{
+            linkAdjacent(tag2, tag);
+        }
         return;
     }
     
@@ -134,24 +130,36 @@ function tag_group_value(tag){
         cur_tag = cur_tag.adjacentLeft;
     }
     while(cur_tag){
-        sum = sum.add(tag.value);
+        sum = sum.add(cur_tag.value);
+        console.log("summing:",sum);
         cur_tag = cur_tag.adjacentRight;
     }
     return sum;
 }
 
 function getTarget(){
-    return new Rational(1,1);
+    console.log(fraction_problem.target);
+    return fraction_problem.target;
 }
 
 function tag_snap_to_nearest(tag){
     var nearest = tag_find_nearest(tag);
-    console.log(nearest);
     if(!nearest) return;
     tag_snap_to(tag, nearest[0]);
+    console.log(tag_group_value(tag));
     if(tag_group_value(tag).equals(getTarget())){
-        destroyFraction(tag);
+        destroy_fraction_group(tag);
+        new_problem();
     }
+}
+
+function tag_disconnect(tag){
+    if(tag.adjacentRight)
+        tag.adjacentRight.adjacentLeft = undefined;
+    if(tag.adjacentLeft)
+        tag.adjacentLeft.adjacentRight = undefined;
+    tag.adjacentRight = undefined;
+    tag.adjacentLeft = undefined;
 }
 
 function movetarget(original_event){
@@ -163,6 +171,7 @@ function movetarget(original_event){
     var offset_y = -original_y+target.top;
 
     var moveMe = function (event) {
+        tag_disconnect(target);
         var x = event.clientX, y = event.clientY;
         tag_move(target, x + offset_x, y + offset_y);
     }
@@ -206,26 +215,38 @@ function createFraction(pos, fraction_area, prototype){
     tag_resize(newElement,
                  style_to_num(window.getComputedStyle(prototype).width),
                  style_to_num(window.getComputedStyle(prototype).height));
-    console.log(newElement.width);
     newElement.value = new Rational(Number(newElement.width), 200);
-    console.log(newElement.value);
 
     // Init color
     tag_set_color(newElement,
                   window.getComputedStyle(prototype).background);
-    newElement.textContent = prototype.textContent;
+    newElement.textContent = math_expr(rational_latex(newElement.value));
+    MathJax.Hub.Typeset(newElement);
     fraction_area.appendChild(newElement);
     movetarget({"target":newElement, 
                 "clientX":pos.clientX, 
                 "clientY":pos.clientY});
+   
+    fractions.fraction_area.push(newElement);
 }
 
 function destroyFraction(fraction){
     if(fraction.parentNode == null)
         return;
     fraction.parentNode.removeChild(fraction);
-    if(fraction.adjacent)
-        destroyFraction(fraction.adjacent);
+}
+
+function destroy_fraction_group(fraction){
+    var cur_fraction = fraction;
+    while(cur_fraction.adjacentLeft){
+        cur_fraction = cur_fraction.adjacentLeft;
+    }
+    while(cur_fraction){
+        console.log(cur_fraction);
+        var next = cur_fraction.adjacentRight;
+        destroyFraction(cur_fraction);
+        cur_fraction = next;
+    }
 }
 
 function make_proto(proto_tag, fraction_area){
@@ -242,6 +263,7 @@ function init(){
     var fractionTags = document.getElementsByClassName("fraction");
 
     var fraction_area= document.getElementById("main_area");
+    fraction_area.fractions = [];
 
     // Make all 'fraction' tags moveable.
     for(var i = 0; i < fractionTags.length; i++) {
