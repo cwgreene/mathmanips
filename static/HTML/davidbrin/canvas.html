@@ -1,0 +1,14 @@
+<html>
+<body>
+<canvas width="2000" height="2000" id='canvas'></canvas>
+<script>
+var color = "#FF0000";
+var c = document.getElementById("canvas");
+var ctx = c.getContext("2d");
+var plot = function(x,y) {
+    ctx.fillStyle=color;
+    ctx.fillRect(x*10,y*10,10,10);
+}
+</script>
+</body>
+</html>

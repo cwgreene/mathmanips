@@ -13,6 +13,14 @@ handlers:
   static_files: static/HTML/\1
   upload: static/HTML/(.*\.(html))
 
+- url: /(.*\.(js))
+  static_files: static/HTML/\1
+  upload: static/HTML/(.*\.(js))
+
+- url: /(.*\.(css))
+  static_files: static/HTML/\1
+  upload: static/HTML/(.*\.(css))
+
 - url: .*
   script: main.app
 
