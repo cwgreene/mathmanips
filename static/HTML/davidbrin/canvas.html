@@ -1,4 +1,12 @@
 <html>
+<head>
+<style>
+body{
+    margin:0;
+    padding:0;
+}
+</style>
+</head>
 <body>
 <canvas width="2000" height="2000" id='canvas'></canvas>
 <script>
@@ -7,15 +15,22 @@ var c = document.getElementById("canvas");
 var ctx = c.getContext("2d");
 var plot = function(x,y) {
     ctx.fillStyle=color;
-    ctx.fillRect(x*10,y*10,10,10);
+    ctx.fillRect(Math.floor(x*10),Math.floor(y*10),10,10);
 }
-var help = 
-"This is a simple plotting program. \
-Type help to view this message. \
-Type plot(2,2) to plot a 'pixel'"
 
+var help = function(help_msg) {
+    var default_help = 
+    ["This is a simple plotting program.",
+    "Type 'help()' to view this message.",
+    "Type 'plot(2,2)' to plot a 'pixel'"];
 
-console.log(help);
+    if(help_msg === undefined)
+        help_msg = default_help;
+
+    for(var i = 0; i < help_msg.length;i++)
+        console.log(help_msg[i]);
+}
+help();
 </script>
 </body>
 </html>
