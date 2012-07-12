@@ -16,9 +16,24 @@
 #
 import webapp2
 
+from google.appengine.api import users
+from google.appengine.api import db
+
+class UserStats(db.Model):
+    user_email = db.StringProperty()
+    user_visits = db.IntegerProperty()
+
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        user = users.get_current_user()
+        if user:
+            self.response.out.write('Hello %s!! <a href="%s">Sign out</a>' 
+                                    % (user.nickname(), users.create_logout_url("/")))
+        else:
+            self.response.out.write('<a href="%s">Please Sign in</a>' %
+                                     users.create_login_url("/"))
+            
+        
 
 app = webapp2.WSGIApplication([('/', MainHandler)],
                               debug=True)
