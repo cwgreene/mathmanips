@@ -4,19 +4,50 @@
 div.fraction_area{
     -webkit-user-select:none;
     -moz-user-select:none;
+    float:left;
+    text-align:center;
+    width:400px;
+    height:400px;
+    border-style:solid;
+}
+div.restatement{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    text-align:center;
+    height:50px;
+    border-style:solid;
+}
+#problem{
+    text-align:center;
+}
+div.prototype_area{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    float:left;
+    text-align:center;
+    border-style:solid;
+    width:230px;
+    height:150px;
+}
+div.app_area{
+    -webkit-user-select:none;
+    -moz-user-select:none;
 }
 div.fraction{
     -moz-user-select:none;
     position:absolute;
-    height:20px;
+    height:25px;
+    text-align:center;
+    border-style:solid;
+    border-width:1px;
 }
 div.fraction.fourth {
     background-color:red;
     width:50px;
 }
 div.fraction.fifth {
-        background-color:yellow;
-        width:40px;
+    background-color:yellow;
+    width:40px;
 }
 
 div.fraction.half {
@@ -28,14 +59,30 @@ div.fraction.whole {
     width:200px;
 }
 </style>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}, 
+                        showProcessingMessages:false});
+</script>
 </head>
 <body>
-    <div class="fraction_area" id="main_area">
-        <div class="fraction fourth" style="top:0px">Fourth</div>
-        <div class= "fraction fifth" style="top:60px">fifth</div>
-        <div class="fraction half" style="top:20px">half</div>
-        <div class="fraction whole" style="top:40px">whole</div>
+    <div class = "prototype_area">
+        <div class="fraction fourth" style="top:25px;">$\frac{1}{4}$</div>
+        <div class= "fraction fifth" style="top:100px">$\frac{1}{5}$</div>
+        <div class="fraction half" style="top:50px">$\frac{1}{2}$</div>
+        <div class="fraction whole" style="top:75px">$1$</div>
     </div>
+    <div class="fraction_area" id="main_area">
+        <div id="problem">$x$</div>
+        <div id="restatement" class="restatement">Block Statement</div>
+        <div id="solution" class="solution">Solution</div>
+    </div>
+<script src="util.js"></script>
+<script src="rational.js"></script>
+<script src="geometry.js"></script>
 <script src="fraction.js"></script>
+<script src="fraction_problem.js"></script>
 </body>
 </html>
