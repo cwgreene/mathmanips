@@ -17,7 +17,7 @@
 import webapp2
 
 from google.appengine.api import users
-from google.appengine.api import db
+from google.appengine.ext import db
 
 class UserStats(db.Model):
     user_email = db.StringProperty()

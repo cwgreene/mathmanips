@@ -1,0 +1,29 @@
+-no disappearing
+-request sizes?
+-palette needs:
+    -1/4
+    -1/2
+    -1/6 
+and completions
+-Fixed sizes, not random
+
+
+(note to self: activity object)
+
+Katie Control:
+    -Interface to
+        - select sequence (control which fractions)
+        - associated storyline
+        - Control pallette
+    -Story panel, tied to sequence
+    -visual cue, change color on completion
+        -next button
+    -Problem selection and creation
+        -sequence control
+        -Sequence groups
+    -control panel
+    - Make fractions bigger
+        - More space around areas
+        - no block statement area
+    - Sequence: Complete Block Statment, than move to Solution
+        - On block statement completion, colors are kept
