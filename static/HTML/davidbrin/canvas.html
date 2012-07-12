@@ -10,13 +10,22 @@ body{
 <body>
 <canvas width="2000" height="2000" id='canvas'></canvas>
 <script>
+//Colors
+var red = "#FF0000"
+var green = "#00FF00"
+var green = "#0000FF"
+var black = "#000000"
+var white = "#FFFFFF"
+
 var color = "#FF0000";
 var c = document.getElementById("canvas");
-var ctx = c.getContext("2d");
+var ctx = c.getContext("2d");http://diracdeltamath.appspot.com/davidbrin/canvas.html
 var plot = function(x,y) {
     ctx.fillStyle=color;
     ctx.fillRect(Math.floor(x*10),Math.floor(y*10),10,10);
 }
+
+alert("Open your Console, F12 on Chrome and IE8, ctrl-shift-k on Firefox. Command-J on a mac"); 
 
 var help = function(help_msg) {
     var default_help = 
