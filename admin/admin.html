@@ -1,0 +1,36 @@
+<html>
+<head>
+<style type="text/css">
+select.Selector {
+    width:100;
+}
+</style>
+</head>
+<body>
+<h3> Logged in as {{user.nickname}} <a href="{{logout}}">logout</a></h3>
+<form>
+    <h1> Sequence </h1>
+    <div>
+        <div>
+            Problems
+            <select id="Problems" class="Selector" multiple="multiple">
+            </select>
+        </div>
+        <div>
+            Fractions
+            <select id="Fractions" class="Selector" multiple="multiple">
+            </select>
+        </div>
+        <div>
+            Story
+            <textarea rows=10 cols=80></textarea>
+        </div>
+    </div>
+    <input type="button" onmousedown="add_problem()" value="Create New Problem"></input>
+</form>
+<script>
+//var problems = {{problems}};
+</script>
+<script src="admin.js"></script>
+</body>
+</html>

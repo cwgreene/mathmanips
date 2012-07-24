@@ -216,6 +216,7 @@ function createFraction(pos, fraction_area, prototype){
                  style_to_num(window.getComputedStyle(prototype).width),
                  style_to_num(window.getComputedStyle(prototype).height));
     newElement.value = new Rational(Number(newElement.width), 200);
+    console.log("Value:",newElement.width, newElement.value);
 
     // Init color
     tag_set_color(newElement,
@@ -227,7 +228,7 @@ function createFraction(pos, fraction_area, prototype){
                 "clientX":pos.clientX, 
                 "clientY":pos.clientY});
    
-    fractions.fraction_area.push(newElement);
+    //fractions.fraction_area.push(newElement);
 }
 
 function destroyFraction(fraction){

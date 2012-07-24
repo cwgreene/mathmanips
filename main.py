@@ -18,6 +18,7 @@ import webapp2
 
 from google.appengine.api import users
 from google.appengine.ext import db
+from google.appengine.ext.webapp import template
 
 class UserStats(db.Model):
     user_email = db.StringProperty()
@@ -32,8 +33,28 @@ class MainHandler(webapp2.RequestHandler):
         else:
             self.response.out.write('<a href="%s">Please Sign in</a>' %
                                      users.create_login_url("/"))
+ 
+class AdminHandler(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if user:
+            self.response.write(template.render(
+                "admin/admin.html",
+                {
+                    "user" : user,
+                    "logout" : users.create_logout_url("/")
+                }
+                ))
+        else:
+            self.response.out.write('<a href="%s">Please Sign in</a>' %
+                                     users.create_login_url("/"))
             
+class TestJsonHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.out.write('{"a":"chicken"}');
         
 
-app = webapp2.WSGIApplication([('/', MainHandler)],
+app = webapp2.WSGIApplication([('/', MainHandler),
+                               ('/admin', AdminHandler),
+                               ('/test.json', TestJsonHandler)],
                               debug=True)

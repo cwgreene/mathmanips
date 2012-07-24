@@ -1,6 +1,12 @@
 <html>
 <head>
 <style type="text/css">
+#left_panel{
+    float:left;
+}
+#right_panel{
+    float:left;
+}
 div.fraction_area{
     -webkit-user-select:none;
     -moz-user-select:none;
@@ -23,8 +29,15 @@ div.restatement{
 div.prototype_area{
     -webkit-user-select:none;
     -moz-user-select:none;
-    float:left;
     text-align:center;
+    border-style:solid;
+    width:230px;
+    height:150px;
+}
+div.story_area{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    text-align:left;
     border-style:solid;
     width:230px;
     height:150px;
@@ -68,16 +81,21 @@ div.fraction.whole {
 </script>
 </head>
 <body>
-    <div class = "prototype_area">
-        <div class="fraction fourth" style="top:25px;">$\frac{1}{4}$</div>
-        <div class= "fraction fifth" style="top:100px">$\frac{1}{5}$</div>
-        <div class="fraction half" style="top:50px">$\frac{1}{2}$</div>
-        <div class="fraction whole" style="top:75px">$1$</div>
+    <div id="left_panel">
+        <div class = "prototype_area">
+            <div class="fraction fourth" style="top:25px">$\frac{1}{4}$</div>
+            <div class= "fraction fifth" style="top:100px">$\frac{1}{5}$</div>
+            <div class="fraction half" style="top:50px">$\frac{1}{2}$</div>
+            <div class="fraction whole" style="top:75px">$1$</div>
+        </div>
+        <div class = "story_area" id="story_area">hi</div>
     </div>
-    <div class="fraction_area" id="main_area">
-        <div id="problem">$x$</div>
-        <div id="restatement" class="restatement">Block Statement</div>
-        <div id="solution" class="solution">Solution</div>
+    <div id="right_panel">
+        <div class="fraction_area" id="main_area">
+            <div id="problem">$x$</div>
+            <div id="restatement" class="restatement">Block Statement</div>
+            <div id="solution" class="solution">Solution</div>
+        </div>
     </div>
 <script src="util.js"></script>
 <script src="rational.js"></script>

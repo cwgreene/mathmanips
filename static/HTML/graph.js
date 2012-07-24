@@ -32,19 +32,31 @@ Graph.prototype.add_node = function(node_name){
     if(typeof node_name != "string"){
         //throw("Only string names are allowed for nodes");
     }
-    this.p_nodes[node_name] = [];
+    this.p_nodes[node_name] = {};
+}
+
+Graph.prototype.edge_data = function(node_a, node_b, data_name, data) {
+    if(!(node_a in this.p_nodes))
+        throw("Graph.prototype.edge_data: " + node_a + " not in graph");
+    if(!(node_b in this.p_nodes[node_a]))
+        throw("Graph.prototype.edge_data: " + node_b + " not connected to " + node_a);
+    this.p_nodes[node_a][node_b][data_name] = data;
+}
+
+Graph.prototype.get_edge_data = function(node_a, node_b, data_name) {
+    return this.p_nodes[node_a][node_b][data_name];
 }
 
 Graph.prototype.adjacent = function(node_name){
     if(!(node_name in this.p_nodes))
         throw("Graph.prototype.adjacent: " + node_name + " not in graph");
-    return this.p_nodes[node_name];
+    return Object.keys(this.p_nodes[node_name]);
 }
 
 Graph.prototype.connect = function(a, b){
     if(!(a in this.p_nodes && b in this.p_nodes))
         throw("Graph.prototpe.connect: " + a + " and " + b + " not both in graph");
-    return this.p_nodes[a].push(b);
+    return this.p_nodes[a][b] = {};
 }
 
 Graph.prototype.connected = function(node){
@@ -56,10 +68,11 @@ Graph.prototype.connected = function(node){
         cur = alist.pop();
         var adjacent = this.adjacent(cur);
         for(var i = 0; i < adjacent.length; i++) {
-            if(adjacent[i] in found)
+            var adj = adjacent[i];
+            if(adj in found)
                 continue;
-            found[adjacent[i]] = true;
-            alist.push(adjacent[i]);
+            found[adj] = true;
+            alist.push(adj);
         }
     }
     return Object.keys(found);
@@ -75,7 +88,6 @@ var assert = function(string, string2){
         assert_failures.push([string+string2, eval(string)]);
     }
 }
-
 
 var test = function(){
     var init = "var x = new Graph();"
@@ -93,7 +105,9 @@ var test = function(){
     assert(init3 + "x.connect('a','b'); x.adjacent('b')",".equals([]);")
     assert(init3 + "x.connect('b','a'); x.adjacent('b')",".equals(['a']);")
     assert(init3 + "x.connect('b','a'); x.adjacent('a')",".equals([]);")
-    
+    assert(init3 + "x.connect('a','b'); x.edge_data('a','b','chicken',3); x.get_edge_data('a','b','chicken')","===3;");
+   
+    console.log("Testing connected"); 
     var init4 = init3 + "x.add_node('c'); x.connect('a','b'); x.connect('b','c');";
     assert(init4 + "x.connected('a')", ".equals(['b','c'])");
     

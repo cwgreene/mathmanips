@@ -13,19 +13,37 @@ and completions
 (note to self: activity object)
 
 Katie Control:
-    -Interface to
+    ## Admin Panel
+    - Interface to
         - select sequence (control which fractions)
         - associated storyline
         - Control pallette
-    -Story panel, tied to sequence
-    -visual cue, change color on completion
-        -next button
     -Problem selection and creation
         -sequence control
         -Sequence groups
-    -control panel
+        -control panel
+    # 2 hours if i knew what I was doing, 6 probably
+    
+    ## Game Changes
+    - Story panel, tied to sequence # 20 minutes
+    
+    -visual cue, change color on completion
+        -next button
     - Make fractions bigger
         - More space around areas
         - no block statement area
     - Sequence: Complete Block Statment, than move to Solution
         - On block statement completion, colors are kept
+
+    - So on startup:
+        -Take parameter to load problem
+        -pass problem in as json object
+        -Get parameters for object
+
+    # after everything
+    - Animated example
+    - Watching example: text pop-ups along the way
+        - Enter text
+    - Record for example creation.
+        - list of actions.
+    - multiple examples.
