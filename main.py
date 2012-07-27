@@ -15,14 +15,18 @@
 # limitations under the License.
 #
 import webapp2
+import json
 
 from google.appengine.api import users
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 from google.appengine.ext.webapp import template
 
-class UserStats(db.Model):
-    user_email = db.StringProperty()
-    user_visits = db.IntegerProperty()
+import logging
+
+
+class UserStats(ndb.Model):
+    user_email = ndb.StringProperty()
+    user_visits = ndb.IntegerProperty()
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -47,14 +51,54 @@ class AdminHandler(webapp2.RequestHandler):
                 ))
         else:
             self.response.out.write('<a href="%s">Please Sign in</a>' %
-                                     users.create_login_url("/"))
-            
+                                     users.create_login_url("/admin"))
+
+    def post(self):
+        story = self.request.get('story')
+        fractions = self.request.get('fractions').split(",")
+        sequence_id = int(self.request.get('sequence_id'))
+        results = ndb.gql("select * from Problem where sequence_id = %s" % sequence_id)
+        results = [result for results in results]
+        if results == []:
+            problem = Problem(sequence_id=sequence_id, fractions=fractions, story=story)
+        else:
+            problem = [result for result in results][0]
+            problem.story = story
+            problem.fractions = fractions
+        problem.put()
+        
+              
 class TestJsonHandler(webapp2.RequestHandler):
     def get(self):
         self.response.out.write('{"a":"chicken"}');
-        
 
+class Problem(ndb.Model):
+    """Problems consist of:
+        sequence_id : reference to holding sequence, at the moment, one per user
+        fractions : list of strings corresponding to fractionts
+        story : story descriptor for problem"""
+    sequence_id = ndb.IntegerProperty()
+    fractions = ndb.StringProperty(repeated=True)
+    story = ndb.TextProperty()
+
+class ProblemsHandler(webapp2.RequestHandler):
+    def problem(self, id, fractions, story):
+        return {'id':id,
+                'fractions' : fractions,
+                'story' : story}
+    def problems(self):
+        gql_problems = ndb.gql("select * from Problem");
+        return {"problems":
+                    [self.problem(p.sequence_id, p.fractions, p.story) for p in gql_problems]}
+    def get(self):
+        encoder = json.JSONEncoder()
+        self.response.out.write(encoder.encode(self.problems()))
+        logging.info("admin request:\n"+ str(self.request))
+      
+
+logging.getLogger().setLevel(logging.DEBUG)
 app = webapp2.WSGIApplication([('/', MainHandler),
                                ('/admin', AdminHandler),
-                               ('/test.json', TestJsonHandler)],
+                               ('/test.json', TestJsonHandler),
+                               ('/problems', ProblemsHandler)],
                               debug=True)
