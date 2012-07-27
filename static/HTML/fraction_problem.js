@@ -1,4 +1,5 @@
 //requires: util.js
+//requires: request.js
 
 var fraction_problem = {};
 
@@ -35,13 +36,15 @@ var validate = function(fraction_tags){
 }
 
 var cur_problem = 0;
+var list_problems = [];
+
 var new_problem = function(){
-    var list_problems = [{"problem":[new Rational(1,4),new Rational(1,5)],
+/*    var list_problems = [{"problem":[new Rational(1,4),new Rational(1,5)],
                           "story": "This is the beginning"},
                          {"problem":[new Rational(3,4),new Rational(1,2)],
                           "story":"This is the middle"},
                          {"problem":[new Rational(1,2),new Rational(1,4), new Rational(1,5)],
-                          "story":"This is the end"}];
+                          "story":"This is the end"}];*/
     cur_problem +=1;
     var current = list_problems[cur_problem%list_problems.length];
     document.getElementById("story_area").textContent = current.story;
@@ -68,13 +71,13 @@ var FractionProblem = function(rational_list, target_tag, target_var){
     target_var.target = sum;
     target_var.problem_statement = rational_list;
 
-    var states = new Graph();
+    /*var states = new Graph();
     states.add_node("block_statement");
     states.add_node("same_color");
     states.add_node("finish");
     states.connect("block_statement", "same_color");
     states.connect("same_color", "finish"); 
-    states.edge_data("block_statement", "same_color");
+    states.edge_data("block_statement", "same_color");*/
 }
 
 var init_problem = function(){
@@ -82,4 +85,21 @@ var init_problem = function(){
     new_problem();
 }
 
-init_problem()
+var get_problems = function() {
+    get_request("/problems", "", 
+        function(data) {
+            data = JSON.parse(data);
+            console.log(data);
+            for(var i = 0; i < data.problems.length; i++) {
+                problem = data.problems[i];
+                console.log(problem.fractions);
+                list_problems[i] = {
+                    "problem": map(str2rational, problem.fractions),
+                     "story": problem.story
+                    };
+            }
+            init_problem();
+        });
+}
+
+get_problems();

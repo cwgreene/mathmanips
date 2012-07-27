@@ -32,8 +32,12 @@ class MainHandler(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         if user:
-            self.response.out.write('Hello %s!! <a href="%s">Sign out</a>' 
-                                    % (user.nickname(), users.create_logout_url("/")))
+            self.response.out.write(template.render(
+                "landing_page/landing.html",
+                {
+                    "user":user.nickname(), 
+                    "logout":users.create_logout_url("/")
+                }))
         else:
             self.response.out.write('<a href="%s">Please Sign in</a>' %
                                      users.create_login_url("/"))
@@ -47,8 +51,7 @@ class AdminHandler(webapp2.RequestHandler):
                 {
                     "user" : user,
                     "logout" : users.create_logout_url("/")
-                }
-                ))
+                }))
         else:
             self.response.out.write('<a href="%s">Please Sign in</a>' %
                                      users.create_login_url("/admin"))

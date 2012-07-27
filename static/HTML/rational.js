@@ -24,6 +24,16 @@ Rational.prototype.mult = function(frac) {
     return new Rational(this.num*frac.num, frac.den*this.den);
 }
 
+var str2rational = function(str) {
+    var split = str.split("/")
+    var num = split[0];
+    var denom = split[1];
+    if(!(num) || !(denom))
+        return new Rational(0,1);
+    return new Rational(Number(num),Number(denom));
+}
+
+
 /* Tests */
 function test(){
 
