@@ -61,7 +61,7 @@ class AdminHandler(webapp2.RequestHandler):
         fractions = self.request.get('fractions').split(",")
         sequence_id = int(self.request.get('sequence_id'))
         results = ndb.gql("select * from Problem where sequence_id = %s" % sequence_id)
-        results = [result for results in results]
+        results = [result for result in results]
         if results == []:
             problem = Problem(sequence_id=sequence_id, fractions=fractions, story=story)
         else:

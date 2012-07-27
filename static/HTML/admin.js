@@ -2,13 +2,15 @@ var Eproblem_list = document.getElementById("Problems");
 var Efraction_list = document.getElementById("Fractions");
 var Enew_fraction_text = document.getElementById("NewFraction");
 var Estory = document.getElementById("Story");
+
 var problem_dict = {};
+var selected_fraction = undefined;
 
 var display_problem = function(problem) {
     while(Efraction_list.length != 0)
         Efraction_list.removeChild(Efraction_list.childNodes[0]);
     for(var i = 0; i < problem.fractions.length; i++) {
-        add_option(Efraction_list, problem.fractions[i]);
+        add_fraction_option(problem.fractions[i]);
     }
     Estory.value = problem.story;
 }
@@ -47,10 +49,17 @@ var request = function(resource, method, data, action) {
     console.log(data);
     req.send(data);
 }
+var add_fraction_option = function(frac) {
+    add_option(Efraction_list, frac, function(){selected_fraction = this});
+}
+
+var delete_fraction = function() {
+    Efraction_list.removeChild(selected_fraction);
+}
 
 var new_fraction_option = function() {
     var frac = Enew_fraction_text.value;
-    add_option(Efraction_list, frac);
+    add_fraction_option(frac);
 }
 
 var get_request = function(resource, data, action) {
