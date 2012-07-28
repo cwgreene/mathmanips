@@ -16,7 +16,7 @@ var display_problem = function (problem) {
     while(Efraction_list.length > 0)
         Efraction_list.removeChild(Efraction_list.childNodes[0]);
     while(Epalette_list.length > 0)
-        Epalette_list.removeChild(Efraction_list.childNodes[0]);
+        Epalette_list.removeChild(Epalette_list.childNodes[0]);
     for(i = 0; i < problem.fractions.length; i++) {
         add_fraction_option(problem.fractions[i]);
     }

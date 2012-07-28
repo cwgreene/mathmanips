@@ -258,11 +258,14 @@ function make_proto(proto_tag, fraction_area, numerator, denominator, color){
         };
     proto_tag.numerator = numerator;
     proto_tag.denominator = denominator;
-    proto_tag.style.height = "25px";
+    
     var width = (200*numerator)/denominator;
     proto_tag.style.width = ""+width+"px";
+    proto_tag.style.height = "25px";
+    proto_tag.style.clear="left";
     proto_tag.style.background = color;
     proto_tag.textContent = "$"+rational_latex(new Rational(numerator, denominator))+"$";
+    proto_tag.style.position = "relative";
     MathJax.Hub.Typeset(proto_tag);
 }
 
