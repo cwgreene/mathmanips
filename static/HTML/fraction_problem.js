@@ -47,6 +47,7 @@ var new_problem = function(){
                           "story":"This is the end"}];*/
     cur_problem +=1;
     var current = list_problems[cur_problem%list_problems.length];
+    create_prototypes(current);
     document.getElementById("story_area").textContent = current.story;
     console.log("Story:",current.story);
     FractionProblem(current.problem, document.getElementById("problem"), fraction_problem); 
@@ -81,7 +82,7 @@ var FractionProblem = function(rational_list, target_tag, target_var){
 }
 
 var init_problem = function(){
-    cur_problem=-1; //Start at the beginning...
+    cur_problem=-1; //Start at the beginning... 
     new_problem();
 }
 
@@ -94,8 +95,9 @@ var get_problems = function() {
                 problem = data.problems[i];
                 console.log(problem.fractions);
                 list_problems[i] = {
-                    "problem": map(str2rational, problem.fractions),
-                     "story": problem.story
+                    "problem" : map(str2rational, problem.fractions),
+                    "story" : problem.story,
+                    "palette" : problem.palette
                     };
             }
             init_problem();

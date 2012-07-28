@@ -26,13 +26,26 @@ select.Selector {
             </select>
         </div>
         <div>
+            Palette
+            <select id="Palette" class="Selector" multiple="multiple">
+            <textarea id = "NewPFraction" rows ="1" cols="10"></textarea>
+            <input type="button" onmousedown="new_pfraction_option()" value="Add PFraction">
+            <input type="button" onmousedown="delete_pfraction()" value="Delete PFraction">
+            </select>
+        </div>
+        <div>
             Story
             <textarea id="Story" rows="10" cols="80"></textarea>
         </div>
     </div>
     <input type="button" onmousedown="post_problem()" value="Save"></input>
-    <a href="/">back</a>
 </form>
+<div>
+    <a href="/">Return To Main Page</a>
+</div>
+<div>
+    <a href="/index.html">Fraction Game</a>
+</div>
 <script src="admin.js"></script>
 </body>
 </html>

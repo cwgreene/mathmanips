@@ -47,6 +47,7 @@ div.app_area{
     -moz-user-select:none;
 }
 div.fraction{
+    -webkit-user-select:none;
     -moz-user-select:none;
     position:absolute;
     height:25px;
@@ -82,7 +83,7 @@ div.fraction.whole {
 </head>
 <body>
     <div id="left_panel">
-        <div class = "prototype_area">
+        <div id="prototype_area" class = "prototype_area">
             <div class="fraction fourth" style="top:25px">$\frac{1}{4}$</div>
             <div class= "fraction fifth" style="top:100px">$\frac{1}{5}$</div>
             <div class="fraction half" style="top:50px">$\frac{1}{2}$</div>
@@ -97,12 +98,14 @@ div.fraction.whole {
             <div id="solution" class="solution">Solution</div>
         </div>
     </div>
-<script src="request.js"></script>
-<script src="util.js"></script>
-<script src="rational.js"></script>
-<script src="geometry.js"></script>
-<script src="fraction.js"></script>
-<script src="fraction_problem.js"></script>
-<a href="/">back</a>
+    <script src="request.js"></script>
+    <script src="util.js"></script>
+    <script src="rational.js"></script>
+    <script src="geometry.js"></script>
+    <script src="fraction.js"></script>
+    <script src="fraction_problem.js"></script>
+    <div style="clear:left;">
+        <a href="/" >back</a>
+    </div>
 </body>
 </html>

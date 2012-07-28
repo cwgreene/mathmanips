@@ -60,6 +60,7 @@ class AdminHandler(webapp2.RequestHandler):
         story = self.request.get('story')
         fractions = self.request.get('fractions').split(",")
         sequence_id = int(self.request.get('sequence_id'))
+        palette = self.request.get('palette').split(",")
         results = ndb.gql("select * from Problem where sequence_id = %s" % sequence_id)
         results = [result for result in results]
         if results == []:
@@ -68,6 +69,7 @@ class AdminHandler(webapp2.RequestHandler):
             problem = [result for result in results][0]
             problem.story = story
             problem.fractions = fractions
+            problem.palette = palette
         problem.put()
         
               
@@ -79,20 +81,24 @@ class Problem(ndb.Model):
     """Problems consist of:
         sequence_id : reference to holding sequence, at the moment, one per user
         fractions : list of strings corresponding to fractionts
-        story : story descriptor for problem"""
+        story : story descriptor for problem
+        palette : palette (prototypes) for fractions"""
     sequence_id = ndb.IntegerProperty()
     fractions = ndb.StringProperty(repeated=True)
     story = ndb.TextProperty()
+    palette = ndb.StringProperty(repeated=True)
 
 class ProblemsHandler(webapp2.RequestHandler):
-    def problem(self, id, fractions, story):
+    def problem(self, id, fractions, story, palette):
         return {'id':id,
                 'fractions' : fractions,
-                'story' : story}
+                'story' : story,
+                'palette' : palette }
     def problems(self):
         gql_problems = ndb.gql("select * from Problem");
         return {"problems":
-                    [self.problem(p.sequence_id, p.fractions, p.story) for p in gql_problems]}
+                    [self.problem(p.sequence_id, p.fractions, p.story, p.palette) 
+                        for p in gql_problems]}
     def get(self):
         encoder = json.JSONEncoder()
         self.response.out.write(encoder.encode(self.problems()))

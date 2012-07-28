@@ -171,6 +171,7 @@ function movetarget(original_event){
     var offset_y = -original_y+target.top;
 
     var moveMe = function (event) {
+        console.log("hi");
         tag_disconnect(target);
         var x = event.clientX, y = event.clientY;
         tag_move(target, x + offset_x, y + offset_y);
@@ -215,8 +216,7 @@ function createFraction(pos, fraction_area, prototype){
     tag_resize(newElement,
                  style_to_num(window.getComputedStyle(prototype).width),
                  style_to_num(window.getComputedStyle(prototype).height));
-    newElement.value = new Rational(Number(newElement.width), 200);
-    console.log("Value:",newElement.width, newElement.value);
+    newElement.value = new Rational(prototype.numerator, prototype.denominator);
 
     // Init color
     tag_set_color(newElement,
@@ -250,25 +250,46 @@ function destroy_fraction_group(fraction){
     }
 }
 
-function make_proto(proto_tag, fraction_area){
+function make_proto(proto_tag, fraction_area, numerator, denominator, color){
     proto_tag.is_proto = true;
     proto_tag.onmousedown = 
         function(event){ 
             createFraction(event, fraction_area, proto_tag)
         };
-    proto_tag.numerator = 1;
-    proto_tag.denominator = 1;
+    proto_tag.numerator = numerator;
+    proto_tag.denominator = denominator;
+    proto_tag.style.height = "25px";
+    var width = (200*numerator)/denominator;
+    proto_tag.style.width = ""+width+"px";
+    proto_tag.style.background = color;
+    proto_tag.textContent = "$"+rational_latex(new Rational(numerator, denominator))+"$";
+    MathJax.Hub.Typeset(proto_tag);
 }
 
-function init(){
-    var fractionTags = document.getElementsByClassName("fraction");
+function create_prototypes(problem){
+    var prototype_area = document.getElementById("prototype_area");
+    while(prototype_area.childNodes.length > 0) {
+        var node = prototype_area.childNodes[0];
+        prototype_area.removeChild(node);
+    }   
 
     var fraction_area= document.getElementById("main_area");
     fraction_area.fractions = [];
 
     // Make all 'fraction' tags moveable.
-    for(var i = 0; i < fractionTags.length; i++) {
-        make_proto(fractionTags[i], fraction_area);
+    var palette = problem.palette;
+    for(var i = 0; i < palette.length; i++) {
+        var fraction = palette[i];
+
+        var fraction_nums = fraction.split("/");
+        var numerator = fraction_nums[0];
+        var denominator = fraction_nums[1];
+        var color = fraction_nums[2];
+
+        var new_tag = document.createElement("div");
+        new_tag.className ="fraction";
+        console.log("Values:",numerator,denominator,color);
+        prototype_area.appendChild(new_tag);
+        make_proto(new_tag, fraction_area, numerator, denominator, color);
     }
 }
-init();
