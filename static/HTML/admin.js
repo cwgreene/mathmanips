@@ -50,18 +50,6 @@ var add_option = function (element, text, onclick) {
     element.appendChild(new_option);
 }
 
-var request = function (resource, method, data, action) {
-    var req = new XMLHttpRequest();
-    req.onreadystatechange = function () { 
-        if(this.readyState==4) 
-            action(this.response);
-    };
-    req.open(method, resource);
-    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    console.log(data);
-    req.send(data);
-}
-
 var add_fraction_option = function (frac) {
     add_option(Efraction_list, frac, function (){selected_fraction = this});
 }
@@ -86,13 +74,6 @@ var add_pfraction_option = function (frac) {
 var new_pfraction_option = function () {
     var frac = Enew_pfraction_text.value;
     add_pfraction_option(frac);
-}
-var get_request = function (resource, data, action) {
-    request(resource, "GET", data, action);
-}
-
-var post_request = function (resource, data, action) {
-    request(resource, "POST", data, action);
 }
 
 var join = function (sep, alist) {
@@ -132,9 +113,13 @@ var post_problem = function () {
     console.log(result_str)
     post_request("/admin", 
                  result_str, 
-                 function () {
-                    console.log("success");
+                 function (response) {
+                    console.log("Response:", response);
+                    alert("success!");
                     get_request("/problems", "", update_problems);
+                 },
+                 function(response) {
+                    alert("Failure!");
                  });
 }
 

@@ -20,6 +20,7 @@ import json
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.ext.webapp import template
+import re
 
 import logging
 
@@ -70,8 +71,16 @@ class AdminHandler(webapp2.RequestHandler):
             problem.story = story
             problem.fractions = fractions
             problem.palette = palette
-        problem.put()
-        
+        if (all(map(self.validate_fractions,problem.fractions)) and 
+            all(map(self.validate_palette,problem.palette))):
+            problem.put()
+    def validate_fractions(self, fractions):
+        logging.info("Fractions:"+str(fractions))
+        return re.match("[0-9]+/[0-9]+", fractions)
+    def validate_palette(self, fractions):
+        logging.info("Palette:"+str(fractions))
+        return re.match("[0-9]+/[0-9]+/[a-z]+", fractions)
+         
               
 class TestJsonHandler(webapp2.RequestHandler):
     def get(self):
